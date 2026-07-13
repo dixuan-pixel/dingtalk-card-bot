@@ -1,0 +1,2 @@
+dingtalk-stream>=0.24.0
+requests>=2.28.0

@@ -1,0 +1,11 @@
+config.json
+config.example.json
+data/
+*.md
+deploy.sh
+dingtalk_stats_bot.py
+card_swipe_stats.py
+test_output.txt
+.workbuddy/
+__pycache__/
+*.pyc
