@@ -177,15 +177,24 @@ def is_data_message(message: str) -> bool:
 
 
 def clean_message(message: str) -> str:
-    """去除标题行和序号前缀"""
+    """去除标题行、@提及、序号前缀"""
     lines = message.strip().split('\n')
     cleaned_parts = []
     for line in lines:
         line = line.strip()
         if not line:
             continue
-        if re.match(r'^今日刷卡[：:]?$', line):
+        # 去除 @机器人 提及
+        line = re.sub(r'@\S+\s*', '', line)
+        # 去除"今日刷卡"前缀（无论后面跟什么）
+        line = re.sub(r'^今日刷卡[：:\s]*', '', line)
+        # 去除"昨日刷卡"行
+        if re.match(r'^昨日刷卡', line):
             continue
+        # 去除空行（去掉前缀后可能变空）
+        if not line:
+            continue
+        # 去除序号前缀（1. 2. 1、 等）
         line = re.sub(r'^\d+\s*[.、）)]\s*', '', line)
         if line:
             cleaned_parts.append(line)
@@ -338,12 +347,13 @@ def add_record(message: str, sender: str = "", msg_time: str = "", target_date: 
 # ============================================================
 
 def generate_simple_summary(stats: dict) -> str:
-    """生成简洁版汇总"""
+    """生成简洁版汇总（当日累计）"""
     total_card = stats["total_card_swipe"]
     total_income = stats["total_income"]
+    record_count = len(stats["records"])
     card_display = format_amount(total_card)
     income_display = format_amount(total_income)
-    return f"刷卡今日合计刷卡{card_display}（{total_card}元），合计收入{income_display}（{total_income}元）"
+    return f"今日合计刷卡{card_display}（{total_card}元），合计收入{income_display}（{total_income}元），共{record_count}笔"
 
 
 def generate_detailed_summary(stats: dict) -> str:
